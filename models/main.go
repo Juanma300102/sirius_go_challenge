@@ -8,8 +8,8 @@ import (
 
 type User struct {
 	ID        uint `gorm:"primarykey"`
-	Email      string `json:"email" binding:"required"`
-	Password   string `json:"password" binding="required"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
 	Firsttname string `json:"firstname"`
 	Lastname   string `json:"lastname"`
 	Dni        string `json:"dni"`

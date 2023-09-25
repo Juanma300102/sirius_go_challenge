@@ -15,15 +15,22 @@ func AddUserRoutes(rg *gin.RouterGroup) {
 		c.JSON(http.StatusOK, <-listCh)
 	})
 
+	
+	users.POST("/", func(c *gin.Context) {
+		createCh := make(chan gin.H)
+		go CreateOne(c, createCh)
+		c.JSON(http.StatusCreated, <-createCh)
+	})
+
 	users.GET("/:id",func(c *gin.Context) {
 		getOneCh := make(chan gin.H)
 		go GetOne(c, getOneCh)
 		c.JSON(http.StatusOK, <-getOneCh)
 	})
 
-	users.POST("/", func(c *gin.Context) {
-		createCh := make(chan gin.H)
-		go CreateOne(c, createCh)
-		c.JSON(http.StatusCreated, <-createCh)
+	users.PUT("/:id",func(c *gin.Context) {
+		updateOneCh := make(chan gin.H)
+		go UpdateOne(c, updateOneCh)
+		c.JSON(http.StatusOK, <-updateOneCh)
 	})
 }

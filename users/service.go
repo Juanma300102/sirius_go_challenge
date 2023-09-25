@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func ListAll() ([]models.User, error) {
@@ -21,9 +22,9 @@ func ListAll() ([]models.User, error) {
     return users, nil
 }
 
-func Create(dto *models.User) (*models.User, error) {
+func Create(dto *createUserDto) (*createUserDto, error) {
 	conn := db.GetConnection()
-	result := conn.Create(&dto)
+	result := conn.Model(&models.User{}).Create(&dto)
 	if result.Error != nil {
 		return dto, result.Error
     }
@@ -41,4 +42,21 @@ func Retrieve(id int) (models.User, error) {
 		return user, result.Error
     }
     return user, nil
+}
+
+
+func Update(id int, dto *updateUserDto) (*models.User, error) {
+	conn := db.GetConnection()
+	user, err := Retrieve(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &user, nil
+		}
+		return &user, err
+    }
+	result := conn.Model(&user).Clauses(clause.Returning{}).Updates(dto)
+	if result.Error != nil {
+		return &user, result.Error
+    }
+	return &user, nil
 }

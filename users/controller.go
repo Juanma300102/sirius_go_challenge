@@ -1,7 +1,7 @@
 package users
 
 import (
-	"challenge/models"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -14,15 +14,10 @@ func List(c *gin.Context, ch chan gin.H) {
 	}
 	response := gin.H{"results": users}
 	ch <- response
-
-}
-
-type getOneUriParameters struct {
-	Id int `uri:"id" binding:"required"`
 }
 
 func GetOne(c *gin.Context, ch chan gin.H) {
-	var parameters getOneUriParameters
+	var parameters detailUriParameters
 	if err := c.ShouldBindUri(&parameters); err != nil {
 		c.JSON(400, gin.H{"msg": err})
 		return
@@ -36,8 +31,10 @@ func GetOne(c *gin.Context, ch chan gin.H) {
 }
 
 func CreateOne(c *gin.Context, ch chan gin.H) {
-	var createDto models.User
-	c.BindJSON(&createDto)
+	var createDto createUserDto
+	if err := c.ShouldBindJSON(&createDto); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
 	user, err := Create(&createDto)
 	if err!= nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -47,7 +44,23 @@ func CreateOne(c *gin.Context, ch chan gin.H) {
 }
 
 func UpdateOne(c *gin.Context, ch chan gin.H) {
-	response := gin.H{"message": "OK"}
+	var parameters detailUriParameters
+	var updateDto updateUserDto
+
+	if err := c.ShouldBindUri(&parameters); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
+	if err := c.ShouldBindJSON(&updateDto); err != nil {
+		fmt.Println(err)
+		c.AbortWithError(http.StatusBadRequest, err)
+	} 
+
+	user, err := Update(parameters.Id, &updateDto)
+	
+	if err!= nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+	response := gin.H{"result": user}
 	ch <- response
 }
 
