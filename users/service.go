@@ -60,3 +60,19 @@ func Update(id int, dto *updateUserDto) (*models.User, error) {
     }
 	return &user, nil
 }
+
+func Delete(id int) (*models.User, error) {
+	conn := db.GetConnection()
+	user, err := Retrieve(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &user, nil
+		}
+		return &user, err
+    }
+	result := conn.Delete(&user)
+	if result.Error != nil {
+		return &user, result.Error
+    }
+	return &user, nil
+}

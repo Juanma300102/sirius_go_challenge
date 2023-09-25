@@ -15,7 +15,6 @@ func AddUserRoutes(rg *gin.RouterGroup) {
 		c.JSON(http.StatusOK, <-listCh)
 	})
 
-	
 	users.POST("/", func(c *gin.Context) {
 		createCh := make(chan gin.H)
 		go CreateOne(c, createCh)
@@ -32,5 +31,11 @@ func AddUserRoutes(rg *gin.RouterGroup) {
 		updateOneCh := make(chan gin.H)
 		go UpdateOne(c, updateOneCh)
 		c.JSON(http.StatusOK, <-updateOneCh)
+	})
+
+	users.DELETE("/:id",func(c *gin.Context) {
+		deleteOneCh := make(chan gin.H)
+		go DeleteOne(c, deleteOneCh)
+		c.JSON(http.StatusOK, <-deleteOneCh)
 	})
 }

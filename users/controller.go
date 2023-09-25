@@ -1,7 +1,6 @@
 package users
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,8 +18,7 @@ func List(c *gin.Context, ch chan gin.H) {
 func GetOne(c *gin.Context, ch chan gin.H) {
 	var parameters detailUriParameters
 	if err := c.ShouldBindUri(&parameters); err != nil {
-		c.JSON(400, gin.H{"msg": err})
-		return
+		c.AbortWithError(http.StatusBadRequest, err)
 	}
 	user, err := Retrieve(parameters.Id)
 	if err!= nil {
@@ -51,7 +49,6 @@ func UpdateOne(c *gin.Context, ch chan gin.H) {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
 	if err := c.ShouldBindJSON(&updateDto); err != nil {
-		fmt.Println(err)
 		c.AbortWithError(http.StatusBadRequest, err)
 	} 
 
@@ -65,6 +62,14 @@ func UpdateOne(c *gin.Context, ch chan gin.H) {
 }
 
 func DeleteOne(c *gin.Context, ch chan gin.H) {
-	response := gin.H{"message": "OK"}
-	ch <- response
+	var parameters detailUriParameters
+	if err := c.ShouldBindUri(&parameters); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+	}
+	user, err := Delete(parameters.Id)
+	if err!= nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+	response := gin.H{"result": user}
+	ch <- response   
 }
