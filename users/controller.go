@@ -27,7 +27,10 @@ func GetOne(c *gin.Context, ch chan gin.H) {
 		c.JSON(400, gin.H{"msg": err})
 		return
 	}
-	user; err := Retrieve(parameters.Id)
+	user, err := Retrieve(parameters.Id)
+	if err!= nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
 	response := gin.H{"result": user}
 	ch <- response   
 }
