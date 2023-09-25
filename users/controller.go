@@ -6,29 +6,31 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func List(c *gin.Context, ch chan gin.H) {
-	users, err := ListAll()
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+func List(c *gin.Context) {
+	listCh := make(chan queryResult)
+	go ListAll(listCh)
+	result := <- listCh
+	if result.Err != nil {
+		c.AbortWithError(http.StatusInternalServerError, result.Err)
 	}
-	response := gin.H{"results": users}
-	ch <- response
+	c.JSON(http.StatusOK, gin.H{"results": result.Result})
 }
 
-func GetOne(c *gin.Context, ch chan gin.H) {
+func GetOne(c *gin.Context) {
+	getOneCh := make(chan queryResult)
 	var parameters detailUriParameters
 	if err := c.ShouldBindUri(&parameters); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}
-	user, err := Retrieve(parameters.Id)
-	if err!= nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+	go Retrieve(parameters.Id, getOneCh)
+	result := <- getOneCh
+	if result.Err != nil {
+		c.AbortWithError(http.StatusInternalServerError, result.Err)
 	}
-	response := gin.H{"result": user}
-	ch <- response   
+	c.JSON(http.StatusOK, gin.H{"result": result.Result})
 }
 
-func CreateOne(c *gin.Context, ch chan gin.H) {
+/* func CreateOne(c *gin.Context, ch chan gin.H) {
 	var createDto createUserDto
 	if err := c.ShouldBindJSON(&createDto); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -39,9 +41,9 @@ func CreateOne(c *gin.Context, ch chan gin.H) {
 	}
 	response := gin.H{"result": user}
 	ch <- response
-}
+} */
 
-func UpdateOne(c *gin.Context, ch chan gin.H) {
+/* func UpdateOne(c *gin.Context, ch chan gin.H) {
 	var parameters detailUriParameters
 	var updateDto updateUserDto
 
@@ -59,9 +61,9 @@ func UpdateOne(c *gin.Context, ch chan gin.H) {
 	}
 	response := gin.H{"result": user}
 	ch <- response
-}
+} */
 
-func DeleteOne(c *gin.Context, ch chan gin.H) {
+/* func DeleteOne(c *gin.Context, ch chan gin.H) {
 	var parameters detailUriParameters
 	if err := c.ShouldBindUri(&parameters); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
@@ -72,4 +74,4 @@ func DeleteOne(c *gin.Context, ch chan gin.H) {
 	}
 	response := gin.H{"result": user}
 	ch <- response   
-}
+} */

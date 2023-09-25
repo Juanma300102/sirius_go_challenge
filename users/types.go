@@ -31,3 +31,8 @@ type updateUserDto struct {
 	Dni        string 
 	Adress     string 
 }
+
+type queryResult struct {
+	Result any
+	Err error
+}
