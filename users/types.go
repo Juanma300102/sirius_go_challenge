@@ -26,7 +26,7 @@ type createUserDto struct {
 type updateUserDto struct {
 	Email      string
 	Password   string
-	Firsttname string 
+	Firstname string 
 	Lastname   string 
 	Dni        string 
 	Adress     string 
