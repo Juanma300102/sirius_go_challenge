@@ -12,11 +12,11 @@ var router = gin.Default()
 // Run will start the server
 func Run() {
 	getRoutes()
-	router.Use(middlewares.ErrorHandler)
 	router.Run(":8080")
 }
 
 func getRoutes() {
 	v1 := router.Group("/api/v1")
+	v1.Use(middlewares.ErrorHandler())
 	users.AddUserRoutes(v1)
 }
